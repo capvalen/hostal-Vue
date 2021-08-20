@@ -2,7 +2,7 @@
 	<div>
 		<div class=" border-bottom py-2 px-4 divContenido d-flex align-items-end justify-content-between">
 			<h5 class="mb-1"><i class="bi bi-bookmark"></i> Productos</h5>
-			<button class="btn btn-outline-secondary"  data-bs-toggle="modal" data-bs-target="#divNuevoProducto" @click="productoSeleccionado=0" ><i class="bi bi-box"></i> Crear nuevo</button>
+			<button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#divNuevoProducto" @click="productoSeleccionado=0" ><i class="bi bi-box"></i> Crear nuevo</button>
 		
 		</div>
 		<div class="p-3 border-bottom divContenido" v-for="producto in productosTodos" :key="producto.id" @click="mostrarDetalles(producto.id)">
@@ -66,13 +66,11 @@
 <script>
 import Tostada from '@/components/Tostadas.vue';
 
-var myToast;
 export default {
 	name: 'About',
 	components:{Tostada},
 	data(){
 		return {
-			nombreApi:'http://localhost/hostal/apiHostal',
 			tipo:1,
 			nombre:'', descripcion:'', precio:0, stock:0, numero:'', camas:1, activo:0,
 			productosTodos:[{id:0, nombre: 'carlos'}],
