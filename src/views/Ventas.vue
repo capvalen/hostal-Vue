@@ -41,7 +41,11 @@
 							</div>
 							<div class="col-8">
 								<label for=""><span v-if="cambiar=='productos'">Producto</span> <span v-else>Servicio</span> <small><strong>(S/ {{precioActual}})</strong></small></label>
-								<multiselect ref="multiselect" v-model="seleccionado" :searchable="true" trackBy="nombre" label='nombre' :options="presentar" placeholder="Busque producto o servicio" />
+								<multiselect v-if="cambiar=='productos'" ref="multiselect" v-model="seleccionado" :searchable="true" trackBy="nombre" label='nombre' :options="presentar" placeholder="Busque producto o servicio" />
+								<div v-else>
+									<span>Habitación 256 <span class="badge bg-success me-2">Libre</span></span> 
+									<span><a href="#!" class="text-decoration-none text-primary" @click="verCuartos()" ><i class="bi bi-card-text"></i> Seleccionar</a></span>
+								</div>
 							</div>
 							<div class="col-1 d-flex align-items-end">
 								<div><button class="btn btn-outline-secondary" @click="agregarCanasta()"><i class="bi bi-bag-plus"></i></button></div>
@@ -87,6 +91,48 @@
 				</div>
 			</div>
 		</div>
+
+		<!-- Modal -->
+		<div class="modal fade" id="modalVerHabitaciones" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+		  <div class="modal-dialog modal-lg">
+		    <div class="modal-content">
+		      <div class="modal-header">
+		        <h5 class="modal-title" id="exampleModalLabel">Habitaciones</h5>
+		        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+		      </div>
+		      <div class="modal-body">
+						<div id="filtroHabitaciones">Filtre: <span class="badge bg-secondary" @click="filtroCuarto=[1,2,3,4]" >Todos</span> <span class="badge bg-success" @click="filtroCuarto=[1]" >Libre</span> <span class="badge bg-warning" @click="filtroCuarto=[2]" >En limpieza</span> <span class="badge bg-danger" @click="filtroCuarto=[3]" >Ocupado</span> <span class="badge bg-info" @click="filtroCuarto=[4]" >Reservado</span> </div>
+
+		        <table class="table table-hover">
+							<thead>
+								<tr>
+									<th>N°</th>
+									<th>Descripción</th>
+									<th>Precio</th>
+									<th>Estado</th>
+									<th>Obs.</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr v-for="(habitacion, index) in filtroCuartos" :key="habitacion.id"  >
+										<td>{{index+1}}</td>
+										<td>{{habitacion.nombre}} {{habitacion.numero}}</td>
+										<td>{{parseFloat(habitacion.precio).toFixed(2)}}</td>
+										<td>
+											<span class="badge bg-success" v-if="habitacion.estado=='1'">Libre</span>
+											<span class="badge bg-warning" v-if="habitacion.estado=='2'">En limpieza</span>
+											<span class="badge bg-danger" v-if="habitacion.estado=='3'">Ocupado</span>
+											<span class="badge bg-info" v-if="habitacion.estado=='4'">Reservado</span>
+										</td>
+									
+								</tr>
+							</tbody>
+						</table>
+		      </div>
+		    </div>
+		  </div>
+		</div>
+
 	</div>
 </template>
 <script>
@@ -94,42 +140,36 @@ import Tostada from "@/components/Tostadas.vue";
 import Multiselect from "@vueform/multiselect";
 /* Extraído de: https://github.com/vueform/multiselect */
 
+var divNuevaVenta, modalVerHabitaciones;
+
 export default {
 	name: "About",
 	components: { Tostada, Multiselect },
 
 	data() {
 		return {
-			todos:[], cambiar: null,
+			todos:[], cambiar: 'cuartos',
 			multiValor:null, seleccionado:null, presentar:[], cesta:[],
 			selectCantidad:1, selectPersonas:1, indiceActual:null,
 			tipos: [{value: 1, tipo: "Productos"}, {value: 2, tipo: "Habitaciones"}],
-			cuartos:[], productos:[]
+			cuartos:[], productos:[], cuartosTempo:[],
+			filtroCuarto: [],
 		};
 	},
 	mounted() {
+		divNuevaVenta = new bootstrap.Modal(document.getElementById('divNuevaVenta'));
+		modalVerHabitaciones = new bootstrap.Modal(document.getElementById('modalVerHabitaciones'));
 		
-		axios.post(this.nombreApi+'/listarTodosProductos.php')
-		.then((response)=>{ //console.log( response.data );
-			this.todos = response.data;
-			//this.$refs.multiselect.refreshOptions()
-			response.data.forEach(caso => {
-				if(caso.idTipo=='1'){
-					this.productos.push({value: caso.id, nombre: caso.nombre  });
-				}else{
-					this.cuartos.push({value: caso.id, nombre: caso.nombre + " #" + caso.numero });
-				}
-			});
-			//console.log( this.todos[0].precio );
-		})
-		.catch((error)=>{ console.log( error );});
+		this.pedirDatos();
 	},
 	methods: {
 		empezarVenta(){
 			console.log( this.seleccionado );
 		},
 		limpiar(){
-			this.$refs.multiselect.clear()
+			if(this.tipo=='Productos'){
+				this.$refs.multiselect.clear()
+			}
 			this.selectPersonas =1; this.selectCantidad=1;
 		},
 		cambio(){
@@ -156,7 +196,34 @@ export default {
 		},
 		borrarItem(inn){
 			this.cesta.splice(inn,1)
-		}
+		},
+		async pedirDatos(){
+			axios.post(this.nombreApi+'/listarTodosProductos.php')
+			.then((response)=>{ console.log( response.data );
+				this.todos = response.data;
+				//this.$refs.multiselect.refreshOptions()
+				response.data.forEach(caso => {
+					if(caso.idTipo=='1'){
+						this.productos.push({value: caso.id, nombre: caso.nombre  });
+					}else{
+						this.cuartos.push({value: caso.id, nombre: caso.nombre + " #" + caso.numero, precio: caso.precio, estado: caso.estado });
+					}
+				});
+				//console.log( this.todos[0].precio );
+
+			})
+			.catch((error)=>{ console.log( error );});
+			this.cuartosTempo = this.cuartos;
+				
+		},
+		verCuartos(){
+			this.filtroCuarto=[1,2,3,4];
+			this.pedirDatos();
+			
+			divNuevaVenta.hide();
+			modalVerHabitaciones.show();
+		},
+		
 	},
 	computed:{
 		precioActual(){
@@ -171,8 +238,17 @@ export default {
 			var suma = 0;
 			this.cesta.forEach(cest=>{ suma+=(cest.precio*cest.cantidad)});
 			return parseFloat(suma).toFixed(2);
+		},
+		filtroCuartos(){
+			console.log( this.filtroCuarto );
+			return this.cuartosTempo.filter(i => this.filtroCuarto.includes(i.estado) );
+			
 		}
 	}
 };
 </script>
 <style src="@vueform/multiselect/themes/default.css"></style>
+<style scoped>
+.bg-success{background-color: #3bc30f!important;}
+#filtroHabitaciones span{cursor: pointer; margin: 0 0.4rem;}
+</style>
