@@ -1,51 +1,75 @@
 <template>
-	<div class="container">
-		<div class="row row-cols-3">
-			<Menu />
-			<section class="col-8 col-lg-9 border-start border-end p-0" id="segundaColumna">
-				<div class="p-3 d-flex justify-content-between border-bottom">
-					<h3 class="mb-0">Sist. para Hospedajes</h3>
-					<span class="d-flex align-items-center justify-content-center rounded-circle" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Buscar producto" id="spanBusqueda"><i class="bi bi-search"></i></span>
+	<div class="container-fluid">
+		<div class="row">
+			<section class="col-12 col-lg-2 p-4">
+				<div class="row">
+					<div class="col col-lg-12 d-flex justify-content-center">
+						<img src="./assets/logo.jpg" class="img-fluid px-md-4 mb-3">
+					</div>
+					<div class="col d-block d-lg-none d-xl-none d-xxl-none">
+						<button class="btn btn-primary" data-bs-toggle="collapse" data-bs-target="#contraido" aria-expanded="false" aria-controls="contraido"><i class="bi bi-list"></i></button>
+					</div>
 				</div>
-				<div id="contenido" class="">
-					
-					<router-view></router-view>
-					
-				</div>
+				<ul class="list-group list-group-flush collapse dont-collapse-sm " id="contraido">
+					<router-link to="/" class="list-group-item list-group-item-action" :class="{'active': botonActivo=='/'}"  @click="activarBoton('/')"><i class="bi bi-house"></i> Inicio</router-link>
+					<router-link :to="{name:'caja'}" class="list-group-item list-group-item-action" :class="{'active': botonActivo=='caja'}"  @click="activarBoton('caja')"><i class="bi bi-piggy-bank"></i> Caja</router-link>
+					<router-link to="/reservas" class="list-group-item list-group-item-action" :class="{'active': botonActivo=='reservas'}"  @click="activarBoton('reservas')"><i class="bi bi-lamp-fill"></i> Reservas</router-link>
+					<router-link to="/habitaciones" class="list-group-item list-group-item-action" :class="{'active': botonActivo=='habitaciones'}"  @click="activarBoton('habitaciones')"><i class="bi bi-key-fill"></i> Habitaciones</router-link>
+					<router-link to="/clientes" class="list-group-item list-group-item-action" :class="{'active': botonActivo=='clientes'}"  @click="activarBoton('clientes')"><i class="bi bi-person-workspace"></i> Clientes</router-link>
+					<router-link to="/productos" class="list-group-item list-group-item-action" :class="{'active': botonActivo=='productos'}"  @click="activarBoton('productos')"><i class="bi bi-bag-check"></i> Productos</router-link>
+					<router-link to="/reportes" class="list-group-item list-group-item-action" :class="{'active': botonActivo=='reportes'}"  @click="activarBoton('reportes')"><i class="bi bi-luggage"></i> Reportes</router-link>
+					<li class="list-group-item list-group-item-action"><i class="bi bi-chat-dots"></i> Soporte</li>
+				</ul>
+				<p class="text-center text-body-secondary"><small><small>Versión del software 1.12</small></small></p>
+
 			</section>
-		
-			
-		</div>		
+			<section class="col mt-4">
+				<router-view/>
+			</section>
+		</div>
 	</div>
+
 
 </template>
 
-<style>
-*{font-family: 'Roboto', sans-serif;}
-	section a{color:#8a96a3}
-	section a.active, .router-link-exact-active{color:#242529}
-	#imgPerfil{max-width: 15%;}
-
-	#primeraColumna, #segundaColumna{min-height: 100vh;}
-	#primeraColumna i{font-size: 1.7rem;}
-	#spanBusqueda{ cursor:pointer; width: 2rem; height: 2rem;}
-	#spanBusqueda:hover, .divContenido:hover{
-		background-color: #dbdbdb9e; cursor:pointer;
-	}
-	#spanBusqueda:hover i{
-		color:white;
-	}
-	.btn-primary{background-color: #8f28f0; border: 1px solid #8f28f0;}
-	.btn-primary:hover, .btn-check:active+.btn-primary, .btn-check:checked+.btn-primary, .btn-primary.active, .btn-primary:active, .show>.btn-primary.dropdown-toggle, .btn-check:focus+.btn-primary, .btn-primary:focus{background-color: #7c23d0; border: 1px solid #7c23d0;}
-</style>
-
 <script>
-import Menu from '@/components/Menu.vue'
+export default{
+	data() {
+    return {
+      botonActivo: null
+    };
+  },
+	mounted(){
+		localStorage.setItem('idUsuario', 1)
+		console.log('muestra');
+	},
+  methods: {
+    activarBoton(boton) {
+      this.botonActivo = boton;
+    }
+  }
 
-export default {
-	
-	components:{
-		Menu
-	}
 }
 </script>
+
+<style>
+.ajs-message {
+	background-color: #00ad2d!important;
+	color: aliceblue!important;
+}
+.ajs-error{
+	background-color: #f51e01!important;
+	color: aliceblue!important;
+}
+.puntero{ cursor:pointer}
+@media (min-width: 988px) {
+  .collapse.dont-collapse-sm {
+    display: block;
+    height: auto !important;
+    visibility: visible;
+  }
+}
+.text-success{
+	color:#15AC53!important;
+}
+</style>

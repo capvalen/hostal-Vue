@@ -1,9 +1,15 @@
 import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router'
+import VueAxios from 'vue-axios'
+import axios from "axios";
 
-const app= createApp(App);
+const app = createApp(App)
+app.config.globalProperties.servidor = 'https://intranet.tambowasi.com/api/';
 
-app.config.globalProperties.nombreApi ='http://localhost/hostal/apiHostal';
+//createApp(App).use(router).mount('#app')
 
-app.use(router).mount('#app')
+app
+.use(router)
+.use(VueAxios, axios)
+.mount('#app')

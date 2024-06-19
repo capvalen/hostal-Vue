@@ -1,4 +1,4 @@
-# hostal
+# hotelwasi
 
 ## Project setup
 ```
