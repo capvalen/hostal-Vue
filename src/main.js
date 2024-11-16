@@ -6,6 +6,7 @@ import axios from "axios";
 
 const app = createApp(App)
 app.config.globalProperties.servidor = 'https://intranet.tambowasi.com/api/';
+//app.config.globalProperties.servidor = 'http://hostal.test/api/';
 
 //createApp(App).use(router).mount('#app')
 

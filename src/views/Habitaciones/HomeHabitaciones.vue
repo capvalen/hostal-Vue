@@ -19,13 +19,16 @@
 					<p class="fw-bold mb-0">{{ piso[0].nivel }}° Nivel</p>
 				</div>
 			</div>
-			<div class="row row-cols-2 row-cols-md-4 row-cols-lg-6">
+			<div class="row row-cols-2 row-cols-md-4 row-cols-lg-5">
 				<div class="col my-2 text-decoration-none" v-for="(habitacion, index) in piso" v-show="habitacion.tipo==verFiltro || verFiltro==-1">
 				
 					<div class="card card-body" @click="modalQueHacer(index, piso[0].nivel)" >
 						<p class="fw-bold mb-0"><small>Habitación {{habitacion.tipoCuarto}}</small></p>
 						<p class="text-body-secondary fw-light lh-1"><small><small>{{habitacion.detalle}}</small></small></p>
-						<img src="@/assets/bed.png" style="width: 64px; margin: 0 auto;">
+						<img class="imgCama" v-if="habitacion.estado == 1 && !habitacion.tieneReserva" src="@/assets/bed_verde.png" >
+						<img class="imgCama" v-if="habitacion.estado == 2" src="@/assets/bed_rojo.png" >
+						<img class="imgCama" v-if="habitacion.estado == 3" src="@/assets/bed_azul.png" >
+						<img class="imgCama" v-if="habitacion.estado == 1 && habitacion.tieneReserva" src="@/assets/bed_amarillo.png" >
 						<p class="mb-0 text-center"> {{habitacion.numero}}</p>
 						<div class="row ">
 							<div class="col-12 col-md-8">
@@ -107,6 +110,12 @@
 								<p class="mb-0 text-purple">Editar habitación</p>
 							</button>
 						</div>
+						<div class="col my-1">
+							<button class="btn btn-outline-light" @click="irA('eliminar')">
+								<img src="@/assets/tacho.png" style="width: 32px;">
+								<p class="mb-0 text-danger">Eliminar habitación</p>
+							</button>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -121,7 +130,7 @@ import modalNuevo from './ModalNuevo'
 export default{
 	data(){ return {
 		habitaciones:[], pisos:[], habitacionesPorPiso:{}, verFiltro:-1,
-		tipos:[], seleccionado:[]
+		tipos:[], seleccionado:[], indexGlobal:{nivel:-1,index:-1}
 	}},
 	components:{modalNuevo},
 	mounted() {
@@ -182,6 +191,8 @@ export default{
 		modalQueHacer(index, nivel){
 			this.seleccionado = this.habitacionesPorPiso[nivel][index]
 			const modalQueHacer = new bootstrap.Modal(document.getElementById('modalQueHacer'))
+			this.indexGlobal.index = index
+			this.indexGlobal.nivel = nivel
 			modalQueHacer.show();
 		},
 		irA(tipo){
@@ -194,8 +205,30 @@ export default{
 				case 'reservar': this.$router.push({ name: 'reservarHabitacion', params:{idHabitacion: this.seleccionado.id }}); break;
 				case 'editar': this.$router.push({ name: 'editarHabitacion', params:{idHabitacion: this.seleccionado.id }}); break;
 				case 'reservado': this.$router.push({ name: 'detalleReserva', params:{idReserva: this.seleccionado.idReservado }}); break;
+				case 'eliminar':
+					let hab = this.habitacionesPorPiso[this.indexGlobal.nivel][this.indexGlobal.index]
+					if(confirm(`¿Desea eliminar la habitación #${hab.numero} de forma permanente?`)){
+						this.eliminarHabitacion(hab)
+					}
+					break;
 				default: break;
 			}
+		},
+		eliminarHabitacion(habitacion){
+			let datos = new FormData()
+			datos.append('pedir', 'eliminarHabitacion');
+			datos.append('idHabitacion', this.seleccionado.id); //this.habitaciones.find(h=> h.numero == habitacion.numero && h.nivel == habitacion.nivel ).id ?? -1
+			fetch(this.servidor + 'Habitaciones.php',{
+				method: 'POST', body: datos
+			}).then(serv => serv.text() )
+			.then(resp => {
+				if(resp == 'ok'){
+					alertify.message('Eliminado con éxito')
+				}else{
+					alertify.error('Hubo un error al eliminar')
+				}
+				this.actualizar()
+			})
 		},
 		liberarLimpieza(){
 			let datos = new FormData()
@@ -235,5 +268,8 @@ export default{
 	}
 	.tieneReserva{
 		font-size:0.85rem;
+	}
+	.imgCama{
+		width: 64px; margin: 0 auto;
 	}
 </style>

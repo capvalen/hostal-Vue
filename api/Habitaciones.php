@@ -11,6 +11,7 @@ switch($_POST['pedir']){
 	case 'cobrarHabitacion': cobrarHabitacion($datab); break;
 	case 'liberarLimpieza': liberarLimpieza($datab); break;
 	case 'actualizarHabitacion': actualizarHabitacion($datab); break;
+	case 'eliminarHabitacion': eliminarHabitacion($datab); break;
 }
 
 function basicos($db){
@@ -188,6 +189,16 @@ function actualizarHabitacion($db){
 		$habitacion['tipo'], $habitacion['numero'], $habitacion['detalle'], $habitacion['precioPublico'], $habitacion['precioRebaja'],
 		$habitacion['precioEspecial'], $habitacion['nivel'], $habitacion['id']
 		])){
+		echo 'ok';
+	}else echo 'error';
+}
+
+function eliminarHabitacion($db){
+	$sql = $db->prepare("UPDATE habitaciones SET 
+	activo=0 where id=?;");
+	if($sql->execute([
+		$_POST['idHabitacion']
+	])){
 		echo 'ok';
 	}else echo 'error';
 }

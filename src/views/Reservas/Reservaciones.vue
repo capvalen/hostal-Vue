@@ -53,7 +53,7 @@
 								<label for="">Hora de salida</label>
 								<input type="time" class="form-control" v-model="reserva.horaFin" @change="verificarHorario()">
 							</div>
-							<div class="col">
+							<div class="col d-none">
 								<label for="">Precio acordaro</label>
 								<select class="form-select" id="" @change="cambiarPrecio()" v-model="reserva.precioAcordado">
 									<option value="1">Público</option>
@@ -63,14 +63,14 @@
 							</div>
 							<div class="col">
 								<label for=""><strong>Precio de la habitación:</strong></label>
-								<p>S/ {{parseFloat(reserva.parcial).toFixed(2)}}</p>
+								<input type="number" class="form-control" v-model="reserva.parcial">
 							</div>
 							<div class="col">
 								<label for="">Adelanto (S/)</label>
 								<input type="number" class="form-control" min="0" step="1" v-model="reserva.adelanto" v-change="calcularAdelanto()">
 							</div>
 							<div class="col">
-								<label for=""><strong>A pagar:</strong></label>
+								<label for=""><strong>Total a cobrar al finalizar el servicio:</strong></label>
 								<p>S/ {{parseFloat(reserva.pagar).toFixed(2)}}</p>
 							</div>
 						</div>
@@ -202,14 +202,14 @@ export default{
 			this.cambiarPrecio()
 		},
 		cambiarPrecio(){
-			let parcial =0
-			switch (this.reserva.precioAcordado) {
+			let parcial =this.reserva.parcial
+			/* switch (this.reserva.precioAcordado) {
 				case '1': case 1: parcial = this.habitacion.precioPublico; break;
 				case '2': case 2: parcial = this.habitacion.precioRebaja; break;
 				case '3': case 3: parcial = this.habitacion.precioEspecial; break;
 				default: break;
 			}
-			this.reserva.parcial = parcial;
+			this.reserva.parcial = parcial; */
 			if(parcial <= 0){
 				this.reserva.pagar=0;
 				this.reserva.tipoAtencion = this.reserva.tipoReserva==1 ? 7:2; //pago parcial sea el caso

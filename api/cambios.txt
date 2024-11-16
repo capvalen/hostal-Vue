@@ -1,0 +1,4 @@
+- Se agrega iconos de colores
+- Se agrega el botón para eliminar habitaciones de forma permanente
+- Si no se rellena el cliente, lo toma como Cliente simple
+- Campo de precio libre
